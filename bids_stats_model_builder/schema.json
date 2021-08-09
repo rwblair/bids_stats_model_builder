@@ -1,0 +1,249 @@
+{
+  "title": "BIDS Stats-Models Specification (BEP002) Schema",
+  "description": "BIDS Stats-Models Specification (BEP002) is still under active development, so schema is Not yet finalized",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "definitions": {
+    "DatasetInputs": {
+      "labelInputs": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "inputKeywords": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "$ref":  "#/definitions/DatasetInputs/labelInputs"
+          },
+          "run": {
+            "$ref":  "#/definitions/DatasetInputs/labelInputs"
+          },
+          "subject": {
+            "$ref":  "#/definitions/DatasetInputs/labelInputs"
+          },
+          "session": {
+            "$ref":  "#/definitions/DatasetInputs/labelInputs"
+          }
+        }
+      }
+    },
+    "Variable": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer",
+          "enum": [1]
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "BIDSModelVersion": {
+      "type": "string"
+    },
+    "Name": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "string"
+    },
+    "Input": {"$ref":  "#/definitions/DatasetInputs/inputKeywords"},
+    "Nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Level": {
+            "type": "string",
+            "enum": ["run", "session", "subject", "dataset"]
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Transformations": {
+            "type": "object",
+            "properties": {
+              "Transformer": {"type": "string"},
+              "Instructions": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          },
+          "Model": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Type": {
+                "type": "string",
+                "enum": ["glm", "Meta"]
+              },
+              "X": {
+                "type": "array",
+                "items": {
+                  "$ref":  "#/definitions/Variable"
+                }
+              },
+              "Formula": {"type": "string"},
+              "Options": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "HighPassFilterCutoffSecs": {"type": "number"},
+                    "LowPassFilterCutoffSecs": {"type": "number"},
+                    "Confounds": {
+                       "type": "array",
+                       "items": {"type": "string"}
+                    },
+                    "ReplaceVariables": {
+                      "type": "object",
+                      "additionalProperties": true
+                    },
+                    "Mask": {
+                      "type": "string"
+                    },
+                    "Aggregate": {
+                      "type": "string",
+                      "enum": ["none", "average", "pca"]
+                    }
+                }
+              },
+              "VarianceComponents": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "Name": {"type": "string"},
+                      "Levels": {"type": "string"},
+                      "LevelsFrom": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "oneOf": [
+                      {
+                        "required": ["Levels"],
+                        "not": {"required": ["LevelsFrom"]}
+                      },
+                      {
+                        "required": ["LevelsFrom"],
+                        "not": {"required": ["Levels"]}
+                      }
+                    ]
+                  }
+                ]
+              },
+              "ErrorDistribution": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "Family": {"type": "string"},
+                  "Link": {"type": "string"}
+                }
+              },
+              "Software": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                ]
+              }
+            }
+          },
+          "Contrasts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Name": {
+                  "$ref":  "#/definitions/Variable"
+                },
+                "ConditionList": {
+                  "type": "array",
+                  "items": {
+                    "$ref":  "#/definitions/Variable"
+                  }
+                },
+                "Weights": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "type": ["string", "number"] },
+                      {
+                        "type": "array",
+                        "items": { 
+                          "type": ["string", "number"]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "Test": {
+                  "type": "string",
+                  "enum": ["t", "F"]
+                }
+              }
+            }
+          },
+          "DummyContrasts": {
+            "type": "object",
+            "properties": {
+              "Test": {
+                "type": "string",
+                "enum": ["t"]
+              },
+              "Contrasts": {
+                "type": "array",
+                "items": {
+                  "$ref":  "#/definitions/Variable"
+                }
+              }
+            }
+          },
+          "GroupBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Source": {
+            "type": "string"
+          },
+          "Destination": {
+            "type": "string"
+          },
+          "Filter": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
