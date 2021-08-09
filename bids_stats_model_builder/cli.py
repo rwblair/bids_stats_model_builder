@@ -20,7 +20,7 @@ validator = jsonschema.Draft7Validator(schema=schema)
 prompt_list = [u"boolean", u"integer", u"number", u"string"]
 
 # for testing set to false and the key value will be used instead of user input
-PROMPT = False
+PROMPT = True
 
 def basic_prompt(key, value, store):
     if PROMPT:
